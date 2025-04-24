@@ -1,0 +1,73 @@
+<odoo>
+    <record id="view_mail_message_form" model="ir.ui.view">
+        <field name="name">mail.message.form</field>
+        <field name="model">mail.message</field>
+        <field name="arch" type="xml">
+            <form string="Mail Message">
+                <sheet>
+                    <group>
+                        <field name="subject"/>
+                        <field name="body" widget="html"/>
+                        <field name="message_type"/>
+                        <field name="author_id"/>
+                        <field name="date"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_mail_message_list" model="ir.ui.view">
+        <field name="name">mail.message.list</field>
+        <field name="model">mail.message</field>
+        <field name="arch" type="xml">
+            <list string="Mail Messages">
+                <field name="subject"/>
+                <field name="message_type"/>
+                <field name="author_id"/>
+                <field name="date"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_mail_message_kanban" model="ir.ui.view">
+        <field name="name">mail.message.kanban</field>
+        <field name="model">mail.message</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <field name="subject"/>
+                <field name="message_type"/>
+                <field name="author_id"/>
+                <field name="date"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="o_kanban_record">
+                            <div class="o_kanban_primary">
+                                <strong><field name="subject"/></strong>
+                            </div>
+                            <div class="o_kanban_secondary">
+                                <span>Type: <field name="message_type"/></span>
+                            </div>
+                            <div class="o_kanban_secondary">
+                                <span>Author: <field name="author_id"/></span>
+                            </div>
+                            <div class="o_kanban_secondary">
+                                <span>Date: <field name="date"/></span>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="action_mail_message" model="ir.actions.act_window">
+        <field name="name">Mail Messages</field>
+        <field name="res_model">mail.message</field>
+        <field name="view_mode">list,form,kanban</field>
+        <field name="domain">[('message_type', '=', 'whatsapp')]</field>
+    </record>
+
+    <!-- <menuitem id="menu_mail_message_root" name="Mail Messages" sequence="10" parent="base.menu_custom"/> -->
+    <!-- <menuitem id="menu_mail_message" name="Messages" parent="menu_whatsapp_account_root" action="action_mail_message" sequence="20"/> -->
+</odoo>

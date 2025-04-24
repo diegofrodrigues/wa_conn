@@ -1,0 +1,47 @@
+<odoo>
+    <data>
+        <record id="view_server_action_form_inherit_whatsapp" model="ir.ui.view">
+            <field name="name">ir.actions.server.form.inherit.whatsapp</field>
+            <field name="model">ir.actions.server</field>
+            <field name="inherit_id" ref="base.view_server_action_form" />
+            <field name="arch" type="xml">
+                <!-- Add the new action type to the dropdown -->
+                <xpath expr="//field[@name='state']" position="inside">
+                    <field name="state" string="Enviar WhatsApp"/>
+                </xpath>
+                <!-- Add a conditional section for send_whatsapp_message -->
+                <xpath expr="//sheet" position="inside">
+                    <group>
+                        <field name="whatsapp_account_id" placeholder="Select WhatsApp account" invisible="state != 'send_whatsapp_message'"/>
+                        <field 
+                            name="contact_ids" 
+                            widget="many2many_tags" 
+                            placeholder="Select contacts"
+                            invisible="state != 'send_whatsapp_message'"
+                            />
+                        <field 
+                            name="send_to_model_partner" 
+                            invisible="state != 'send_whatsapp_message'"
+                            />
+                        <field 
+                            name="whatsapp_message" 
+                            widget="textarea" 
+                            placeholder="Enter WhatsApp message"
+                            invisible="state != 'send_whatsapp_message'"
+                            />
+                        <field 
+                            name="whatsapp_media" 
+                            widget="binary" 
+                            filename="whatsapp_media_filename"
+                            invisible="state != 'send_whatsapp_message'"
+                            />
+                        <field 
+                            name="whatsapp_media_filename" 
+                            invisible="1"
+                            />
+                    </group>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
