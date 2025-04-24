@@ -9,7 +9,7 @@
                     <field name="send_whatsapp"/>
                 </xpath>
                 <xpath expr="//form/group" position="inside">
-                    <field name="whatsapp_account_id"  invisible="send_whatsapp != True" required="send_whatsapp != True"/>
+                    <field name="whatsapp_account_id" attrs="{'invisible': [('state' != 'send_whatsapp')], 'required': [('state' != 'send_whatsapp')]}"/>
                 </xpath>
             </field>
         </record>

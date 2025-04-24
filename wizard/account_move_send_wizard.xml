@@ -14,7 +14,7 @@
                 </xpath>
                 <!-- Add the 'whatsapp_account_id' field after the 'send_whatsapp' field -->
                 <xpath expr="//field[@name='send_whatsapp']" position="after">
-                    <field name="whatsapp_account_id" invisible="send_whatsapp != True" required="send_whatsapp != True"/>
+                    <field name="whatsapp_account_id" attrs="{'invisible': [('state' != 'send_whatsapp_message')], 'required': [('state' != 'send_whatsapp_message')]}"/>
                 </xpath>
             </field>
         </record>

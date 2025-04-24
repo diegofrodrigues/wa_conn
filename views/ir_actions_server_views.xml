@@ -12,28 +12,28 @@
                 <!-- Add a conditional section for send_whatsapp_message -->
                 <xpath expr="//sheet" position="inside">
                     <group>
-                        <field name="whatsapp_account_id" placeholder="Select WhatsApp account" invisible="state != 'send_whatsapp_message'"/>
+                        <field name="whatsapp_account_id" placeholder="Select WhatsApp account" attrs="{'invisible': [('state' != 'send_whatsapp_message')]}"/>
                         <field 
                             name="contact_ids" 
                             widget="many2many_tags" 
                             placeholder="Select contacts"
-                            invisible="state != 'send_whatsapp_message'"
+                            attrs="{'invisible': [('state' != 'send_whatsapp_message')]}"
                             />
                         <field 
                             name="send_to_model_partner" 
-                            invisible="state != 'send_whatsapp_message'"
+                            attrs="{'invisible': [('state' != 'send_whatsapp_message')]}"
                             />
                         <field 
                             name="whatsapp_message" 
                             widget="textarea" 
                             placeholder="Enter WhatsApp message"
-                            invisible="state != 'send_whatsapp_message'"
+                            attrs="{'invisible': [('state' != 'send_whatsapp_message')]}"
                             />
                         <field 
                             name="whatsapp_media" 
                             widget="binary" 
                             filename="whatsapp_media_filename"
-                            invisible="state != 'send_whatsapp_message'"
+                            attrs="{'invisible': [('state' != 'send_whatsapp_message')]}"
                             />
                         <field 
                             name="whatsapp_media_filename" 
