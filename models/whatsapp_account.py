@@ -18,14 +18,14 @@ class WhatsAppAccount(models.Model):
         readonly=True,
         tracking=True  # Enable tracking
     )
-    company_ids = fields.Many2many(
-        'res.company',
-        'whatsapp_account_company_rel',
-        'account_id',
-        'company_id',
-        string="Shared Companies",
-        help="Companies that share this WhatsApp account."
-    )  # Many-to-many relationship with res.company
+    # company_ids = fields.Many2many(
+    #     'res.company',
+    #     'whatsapp_account_company_rel',
+    #     'account_id',
+    #     'company_id',
+    #     string="Shared Companies",
+    #     help="Companies that share this WhatsApp account."
+    # )  # Many-to-many relationship with res.company
     company_id = fields.Many2one(
         'res.company',
         string="Company",

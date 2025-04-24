@@ -1,4 +1,5 @@
 <odoo>
+<data>
     <record id="view_whatsapp_account_form" model="ir.ui.view">
         <field name="name">whatsapp.account.form</field>
         <field name="model">whatsapp.account</field>
@@ -15,7 +16,7 @@
                             <field name="state" readonly="True"/>
                         </group>
                         <group>
-                            <field name="company_ids" widget="many2many_tags"/>
+                            <!-- <field name="company_ids" widget="many2many_tags"/> -->
                             <field name="company_id" default="context.get('company_id', user.company_id.id)"/> <!-- Add company_id field -->
                         </group>
                     </group>
@@ -41,7 +42,7 @@
                 <field name="name"/>
                 <field name="base_url"/>
                 <field name="state"/>
-                <field name="company_ids"/>
+                <!-- <field name="company_ids"/> -->
             </tree>
         </field>
     </record>
@@ -54,7 +55,7 @@
                 <field name="name"/>
                 <field name="base_url"/>
                 <field name="state"/>
-                <field name="company_ids"/>
+                <!-- <field name="company_ids"/> -->
                 <templates>
                     <t t-name="card">
                         <div class="o_kanban_record">
@@ -68,7 +69,7 @@
                                 <span>Status: <field name="state"/></span>
                             </div>
                             <div class="o_kanban_secondary">
-                                <span>Shared Companies: <field name="company_ids" widget="many2many_tags"/></span>
+                                <!-- <span>Shared Companies: <field name="company_ids" widget="many2many_tags"/></span> -->
                             </div>
                         </div>
                     </t>
@@ -90,4 +91,5 @@
     <!-- Updated root menu -->
     <!-- <menuitem id="menu_whatsapp_account_root" name="WhatsApp" sequence="10" parent="base.menu_custom"/> -->
     <!-- <menuitem id="menu_whatsapp_account" name="Accounts" parent="menu_whatsapp_account_root" action="action_whatsapp_account" sequence="10"/> -->
+</data>
 </odoo>
