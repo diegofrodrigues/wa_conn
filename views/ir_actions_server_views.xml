@@ -25,8 +25,9 @@
                             />
                         <field 
                             name="whatsapp_message" 
-                            widget="textarea" 
-                            placeholder="Enter WhatsApp message"
+                            widget="html" 
+                            nolabel="1" 
+                            placeholder="Type your WhatsApp message here..."
                             invisible="state != 'send_whatsapp_message'"
                             />
                         <field 

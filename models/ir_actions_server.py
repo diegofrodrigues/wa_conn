@@ -25,7 +25,7 @@ class WhatsAppServerAction(models.Model):
         required=True,
         help="Select the WhatsApp account to use for sending messages."
     )
-    whatsapp_message = fields.Text(string="WhatsApp Message", help="Message to send via WhatsApp.")
+    whatsapp_message = fields.Html(string="WhatsApp Message", help="Message to send via WhatsApp.")  # Changed to Html
     whatsapp_media = fields.Binary(string="Media File", help="Media file to send via WhatsApp.")
     whatsapp_media_filename = fields.Char(string="Media Filename", help="Filename of the media file.")
     send_to_model_partner = fields.Boolean(
