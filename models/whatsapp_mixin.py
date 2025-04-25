@@ -1,5 +1,6 @@
 from odoo import _, models
 import requests
+from odoo.tools import html2plaintext
 from ..tools.util import get_media_type, get_mime_type
 
 
@@ -11,7 +12,7 @@ class WhatsAppMixin(models.AbstractModel):
         """
         Send a WhatsApp message using the specified WhatsApp account.
         :param mobile: Recipient's mobile number.
-        :param message: Message text.
+        :param message: Message text (HTML or plain text).
         :param media: Base64-encoded media file (optional).
         :param media_filename: Filename of the media file (optional).
         :param res_model: Model to link the message to (optional).
@@ -21,6 +22,10 @@ class WhatsAppMixin(models.AbstractModel):
         whatsapp_account = self.env['whatsapp.account'].browse(whatsapp_account_id)
         if not whatsapp_account:
             raise ValueError("Invalid WhatsApp account specified.")
+
+        # Convert HTML message to plain text if necessary
+        if message and ('<' in message and '>' in message):
+            message = html2plaintext(message)
 
         headers = {
             'Content-Type': 'application/json',
@@ -41,7 +46,7 @@ class WhatsAppMixin(models.AbstractModel):
                 'fileName': media_filename,
             }
         else:
-            url =  whatsapp_account.get_url_text_message()
+            url = whatsapp_account.get_url_text_message()
             payload = {
                 'number': f'+{mobile}',
                 'text': message,

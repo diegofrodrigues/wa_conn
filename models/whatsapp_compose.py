@@ -16,11 +16,26 @@ class WhatsAppCompose(models.TransientModel):
         string="Recipients",
         help="Select the recipients for the WhatsApp message."
     )
-    message = fields.Text(string="Message", required=True, help="Enter the WhatsApp message.")
+    template_id = fields.Many2one(
+        'whatsapp.template',
+        string="Template",
+        help="Select a WhatsApp template to use for the message."
+    )
+    message = fields.Html(string="Message", required=True, help="Enter the WhatsApp message.")
     whatsapp_media = fields.Binary(string="Media File", help="Attach a media file to send.")
     whatsapp_media_filename = fields.Char(string="Media Filename", help="Filename of the media file.")
     res_model = fields.Char(string="Related Document Model", help="The model of the related document.")
     res_id = fields.Integer(string="Related Document ID", help="The ID of the related document.")
+
+    @api.onchange('template_id')
+    def _onchange_template_id(self):
+        """
+        Update the message and media fields when a template is selected.
+        """
+        if self.template_id:
+            self.message = self.template_id.message
+            self.whatsapp_media = self.template_id.whatsapp_media
+            self.whatsapp_media_filename = self.template_id.whatsapp_media_filename
 
     @api.model
     def default_get(self, fields):
@@ -50,7 +65,7 @@ class WhatsAppCompose(models.TransientModel):
                 message=self.message,
                 media=self.whatsapp_media,
                 media_filename=self.whatsapp_media_filename,
-                res_model=self.res_model,  # Use res_model
-                res_id=self.res_id,        # Use res_id
+                res_model=self.res_model,
+                res_id=self.res_id,
                 whatsapp_account_id=self.whatsapp_account_id.id
             )
