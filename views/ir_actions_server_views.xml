@@ -12,11 +12,12 @@
                 <!-- Add a conditional section for send_whatsapp_message -->
                 <xpath expr="//sheet" position="inside">
                     <group>
-                        <field name="whatsapp_account_id" placeholder="Select WhatsApp account" invisible="state != 'send_whatsapp_message'"/>
+                        <field name="whatsapp_account_id" placeholder="Select WhatsApp account"  invisible="state != 'send_whatsapp_message'"/>
                         <field 
                             name="contact_ids" 
                             widget="many2many_tags" 
                             placeholder="Select contacts"
+                            
                             invisible="state != 'send_whatsapp_message'"
                             />
                         <field 

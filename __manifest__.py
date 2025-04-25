@@ -26,7 +26,7 @@
         'views/whatsapp_message_views.xml',
         'views/whatsapp_compose_views.xml',
         'wizard/mail_compose_message_wizard.xml',
-        'wizard/account_move_send_wizard.xml',
+        #'wizard/account_move_send_wizard.xml',
     ],
     'assets': {
         'web.assets_backend': [
