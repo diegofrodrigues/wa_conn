@@ -21,12 +21,12 @@
         <field name="name">mail.message.list</field>
         <field name="model">mail.message</field>
         <field name="arch" type="xml">
-            <list string="Mail Messages">
+            <tree string="Mail Messages">
                 <field name="subject"/>
                 <field name="message_type"/>
                 <field name="author_id"/>
                 <field name="date"/>
-            </list>
+            </tree>
         </field>
     </record>
 

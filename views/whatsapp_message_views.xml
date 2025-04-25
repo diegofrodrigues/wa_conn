@@ -21,11 +21,11 @@
         <field name="name">whatsapp.message.list</field>
         <field name="model">whatsapp.message</field>
         <field name="arch" type="xml">
-            <list string="WhatsApp Messages">
+            <tree string="WhatsApp Messages">
                 <field name="message_id"/>
                 <field name="message"/>
                 <field name="whatsapp_media_filename"/>
-            </list>
+            </tree>
         </field>
     </record>
 

@@ -34,7 +34,7 @@
         <field name="name">whatsapp.account.list</field>
         <field name="model">whatsapp.account</field>
         <field name="arch" type="xml">
-            <list string="WhatsApp Accounts">
+            <tree string="WhatsApp Accounts">
                 <header>
                     <button name="action_add_new_account" type="object" string="Create New Account" class="btn-success"/>
                 </header>
@@ -42,7 +42,7 @@
                 <field name="base_url"/>
                 <field name="state"/>
                 <field name="company_ids"/>
-            </list>
+            </tree>
         </field>
     </record>
 
