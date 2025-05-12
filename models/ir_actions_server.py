@@ -1,5 +1,4 @@
 from odoo import api, models, fields, _
-from .whatsapp_mixin import WhatsAppMixin 
 
 
 class WhatsAppServerAction(models.Model):
@@ -20,9 +19,9 @@ class WhatsAppServerAction(models.Model):
         help="Select multiple contacts to send WhatsApp messages."
     )
     whatsapp_account_id = fields.Many2one(
-        'whatsapp.account',
+        'wa.account',
         string="WhatsApp Account",
-        required=True,
+        required=False, 
         help="Select the WhatsApp account to use for sending messages."
     )
     whatsapp_message = fields.Text(string="WhatsApp Message", help="Message to send via WhatsApp.")
@@ -34,7 +33,7 @@ class WhatsAppServerAction(models.Model):
     )
 
     def _run_action_send_whatsapp_message(self, eval_context=None):
-        mixin = self.env['whatsapp.mixin']  # Access the WhatsAppMixin model
+        mixin = self.env['wa.mixin']  # Access the WhatsAppMixin model
         for record in self.env[self.model_id.model].browse(self.env.context.get('active_ids', [])):
             # Send to selected contacts
             for contact in self.contact_ids:

@@ -11,7 +11,7 @@ class MailComposer(models.TransientModel):
 
     send_whatsapp = fields.Boolean()
     whatsapp_account_id = fields.Many2one(
-        'whatsapp.account',
+        'wa.account',
         string="WhatsApp Account",
         required=True,
         help="Select the WhatsApp account to use for sending the message."
@@ -23,7 +23,7 @@ class MailComposer(models.TransientModel):
         Set the default WhatsApp account based on the current company.
         """
         res = super(MailComposer, self).default_get(fields)
-        default_account = self.env['whatsapp.account'].search([('company_id', '=', self.env.company.id)], limit=1)
+        default_account = self.env['wa.account'].search([('company_id', '=', self.env.company.id)], limit=1)
         if default_account:
             res['whatsapp_account_id'] = default_account.id
         return res
@@ -59,8 +59,7 @@ class MailComposer(models.TransientModel):
             if not res_model or not res_id:
                 raise UserError(_("No associated record found to log the WhatsApp message."))
 
-            # Use whatsapp.mixin to send the message
-            mixin = self.env['whatsapp.mixin']
+            mixin = self.env['wa.mixin']
             if self.attachment_ids:
                 for attachment in self.attachment_ids:
                     mixin.send_whatsapp(
