@@ -1,8 +1,7 @@
 from odoo import api, models, fields, _
-from .whatsapp_mixin import WhatsAppMixin 
 
 
-class WhatsAppServerAction(models.Model):
+class WAServerAction(models.Model):
     _inherit = 'ir.actions.server'
     _description = 'Server Action with WhatsApp Integration'
 
@@ -20,9 +19,9 @@ class WhatsAppServerAction(models.Model):
         help="Select multiple contacts to send WhatsApp messages."
     )
     whatsapp_account_id = fields.Many2one(
-        'whatsapp.account',
+        'wa.account',
         string="WhatsApp Account",
-        required=True,
+        ondelete='set null',  # <-- Adicionado para evitar erro de restrição ao excluir a conta
         help="Select the WhatsApp account to use for sending messages."
     )
     whatsapp_message = fields.Html(string="WhatsApp Message", help="Message to send via WhatsApp.")  # Changed to Html
@@ -34,7 +33,7 @@ class WhatsAppServerAction(models.Model):
     )
 
     def _run_action_send_whatsapp_message(self, eval_context=None):
-        mixin = self.env['whatsapp.mixin']  # Access the WhatsAppMixin model
+        mixin = self.env['wa.mixin']  # Access the WhatsAppMixin model
         for record in self.env[self.model_id.model].browse(self.env.context.get('active_ids', [])):
             # Send to selected contacts
             for contact in self.contact_ids:
@@ -66,14 +65,14 @@ class WhatsAppServerAction(models.Model):
         if self.state == 'send_whatsapp_message':
             self._run_action_send_whatsapp_message(eval_context=eval_context)
         else:
-            super(WhatsAppServerAction, self).run_action(eval_context=eval_context)
+            super(WAServerAction, self).run_action(eval_context=eval_context)
 
     @api.depends('state')
     def _compute_name(self):
         """
         Generate a name for the 'Send WhatsApp Message' action.
         """
-        super(WhatsAppServerAction, self)._compute_name()
+        super(WAServerAction, self)._compute_name()
         for action in self:
             if action.state == 'send_whatsapp_message':
                 action.name = _('Enviar WhatsApp')

@@ -9,7 +9,7 @@ class AccountMoveSendWizard(models.TransientModel):
 
     send_whatsapp = fields.Boolean()
     whatsapp_account_id = fields.Many2one(
-        'whatsapp.account',
+        'wa.account',
         string="WhatsApp Account",
         required=False,
         help="Select the WhatsApp account to use for sending the message."
@@ -21,7 +21,7 @@ class AccountMoveSendWizard(models.TransientModel):
         Set the default WhatsApp account based on the current company.
         """
         res = super(AccountMoveSendWizard, self).default_get(fields)
-        default_account = self.env['whatsapp.account'].search([('company_id', '=', self.env.company.id)], limit=1)
+        default_account = self.env['wa.account'].search([('company_id', '=', self.env.company.id)], limit=1)
         if default_account:
             res['whatsapp_account_id'] = default_account.id
         return res
@@ -51,7 +51,7 @@ class AccountMoveSendWizard(models.TransientModel):
                 raise UserError(_("Message content is empty. Please provide a message."))
 
             # Use WhatsAppMixin to send the message
-            mixin = self.env['whatsapp.mixin']
+            mixin = self.env['wa.mixin']
             if self.mail_attachments_widget:
                 # Filter valid attachment IDs
                 attachment_ids = [

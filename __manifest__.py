@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'Bitconn Technology',
+    'name': 'Wa Conn',
     'summary': '''
         Integration for whatsapp with qrcode API.''',
 
@@ -13,7 +13,6 @@
     'website': 'https://bitconn.com.br',
     'version': '1.0.0',
     'category': 'tools',
-    'description': 'Bitconn Integration',
     'application': True,
     'installable': True,
     'auto_install': False,
@@ -21,15 +20,19 @@
     'depends': ['base','mail','sale','account', 'base_automation'],
     'data': [
         'security/ir.model.access.csv',
+        'views/wa_message_views.xml',
+        'views/wa_template_views.xml',
+        'views/wa_account_views.xml',
+        'views/wa_compose_views.xml',
+        #'views/wa_mass_send_views.xml',
         'views/ir_actions_server_views.xml',
-        'views/whatsapp_account_views.xml',
-        'views/whatsapp_message_views.xml',
-        'views/whatsapp_compose_views.xml',
         'wizard/mail_compose_message_wizard.xml',
         'wizard/account_move_send_wizard.xml',
     ],
     'assets': {
         'web.assets_backend': [
+            #'whatsapp_conn/static/src/js/whatsapp_template_html_widget.js',
+            'wa_conn/static/src/js/whatsapp_html_widget.js',
         ],
     },
 }
