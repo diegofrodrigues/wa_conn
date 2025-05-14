@@ -1,0 +1,55 @@
+<odoo>
+    <record id="view_whatsapp_template_form" model="ir.ui.view">
+        <field name="name">whatsapp.template.form</field>
+        <field name="model">wa.template</field>
+        <field name="arch" type="xml">
+            <form string="WhatsApp Template">
+                <sheet>
+                    <group>
+                        <field name="name" required="1"/>
+                        <field name="model" options="{'no_create': True}" required="1" invisible="1"/> 
+                        <field name="model_id" options="{'no_create': True}" required="1"/>
+                    </group>
+                    <group>
+                        <field name="message"
+                               widget="whatsapp_html"
+                               options="{'codeview': true, 'dynamic_placeholder': true}"
+                               required="1"
+                        />
+                        <field name="whatsapp_media" widget="binary" filename="whatsapp_media_filename"/>
+                        <field name="whatsapp_media_filename"/>
+                    </group>
+                    <group>
+                        <field name="attachment_ids" widget="many2many_tags"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_whatsapp_template_list" model="ir.ui.view">
+        <field name="name">whatsapp.template.list</field>
+        <field name="model">wa.template</field>
+        <field name="arch" type="xml">
+            <list string="WhatsApp Templates">
+                <field name="name"/>
+                <field name="model_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_whatsapp_template" model="ir.actions.act_window">
+        <field name="name">WA Templates</field>
+        <field name="res_model">wa.template</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p>
+                Manage WhatsApp templates for different models. Templates can include messages, media, and attachments.
+            </p>
+        </field>
+    </record>
+    <menuitem id="menu_wa_template" name="Templates" parent="menu_wa_message_root" action="action_whatsapp_template"  sequence="40"/>
+</odoo>
