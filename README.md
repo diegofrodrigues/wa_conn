@@ -35,7 +35,7 @@ If this module was useful for you, consider making a donation to support ongoing
 
 Or use the QR Code below or available on the module screen:
 
-![Donate QR Code](static/description/qr_code_donate.png)
+<img src="static/description/qr_code_donate.png" alt="Donate QR Code" width="150" height="150"/>
 
 ---
 
@@ -74,6 +74,6 @@ Se este módulo foi útil para você, considere fazer uma doação para apoiar o
 
 Ou utilize o QR Code abaixo ou disponível na tela do módulo:
 
-![QR Code para Doação](static/description/qr_code_donate.png)
+<img src="static/description/qr_code_donate.png" alt="Donate QR Code" width="150" height="150"/>
 
 ---
