@@ -1,0 +1,71 @@
+<odoo>
+    <record id="wa_api_event_application_startup" model="wa.api.event">
+        <field name="name">APPLICATION_STARTUP</field>
+    </record>
+    <record id="wa_api_event_qrcode_updated" model="wa.api.event">
+        <field name="name">QRCODE_UPDATED</field>
+    </record>
+    <record id="wa_api_event_messages_set" model="wa.api.event">
+        <field name="name">MESSAGES_SET</field>
+    </record>
+    <record id="wa_api_event_messages_upsert" model="wa.api.event">
+        <field name="name">MESSAGES_UPSERT</field>
+    </record>
+    <record id="wa_api_event_messages_update" model="wa.api.event">
+        <field name="name">MESSAGES_UPDATE</field>
+    </record>
+    <record id="wa_api_event_messages_delete" model="wa.api.event">
+        <field name="name">MESSAGES_DELETE</field>
+    </record>
+    <record id="wa_api_event_send_message" model="wa.api.event">
+        <field name="name">SEND_MESSAGE</field>
+    </record>
+    <record id="wa_api_event_contacts_set" model="wa.api.event">
+        <field name="name">CONTACTS_SET</field>
+    </record>
+    <record id="wa_api_event_contacts_upsert" model="wa.api.event">
+        <field name="name">CONTACTS_UPSERT</field>
+    </record>
+    <record id="wa_api_event_contacts_update" model="wa.api.event">
+        <field name="name">CONTACTS_UPDATE</field>
+    </record>
+    <record id="wa_api_event_presence_update" model="wa.api.event">
+        <field name="name">PRESENCE_UPDATE</field>
+    </record>
+    <record id="wa_api_event_chats_set" model="wa.api.event">
+        <field name="name">CHATS_SET</field>
+    </record>
+    <record id="wa_api_event_chats_upsert" model="wa.api.event">
+        <field name="name">CHATS_UPSERT</field>
+    </record>
+    <record id="wa_api_event_chats_update" model="wa.api.event">
+        <field name="name">CHATS_UPDATE</field>
+    </record>
+    <record id="wa_api_event_chats_delete" model="wa.api.event">
+        <field name="name">CHATS_DELETE</field>
+    </record>
+    <record id="wa_api_event_groups_upsert" model="wa.api.event">
+        <field name="name">GROUPS_UPSERT</field>
+    </record>
+    <record id="wa_api_event_group_update" model="wa.api.event">
+        <field name="name">GROUP_UPDATE</field>
+    </record>
+    <record id="wa_api_event_group_participants_update" model="wa.api.event">
+        <field name="name">GROUP_PARTICIPANTS_UPDATE</field>
+    </record>
+    <record id="wa_api_event_connection_update" model="wa.api.event">
+        <field name="name">CONNECTION_UPDATE</field>
+    </record>
+    <record id="wa_api_event_call" model="wa.api.event">
+        <field name="name">CALL</field>
+    </record>
+    <record id="wa_api_event_new_jwt_token" model="wa.api.event">
+        <field name="name">NEW_JWT_TOKEN</field>
+    </record>
+    <record id="wa_api_event_typebot_start" model="wa.api.event">
+        <field name="name">TYPEBOT_START</field>
+    </record>
+    <record id="wa_api_event_typebot_change_status" model="wa.api.event">
+        <field name="name">TYPEBOT_CHANGE_STATUS</field>
+    </record>
+</odoo>

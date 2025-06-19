@@ -13,4 +13,4 @@ class WAMessage(models.Model):
         'mail.message',
         string="Mail Message",
         help="Related mail message for this WhatsApp message."
-    )  # Updated field name
+    )

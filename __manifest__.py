@@ -24,15 +24,14 @@
         'views/wa_template_views.xml',
         'views/wa_account_views.xml',
         'views/wa_compose_views.xml',
-        #'views/wa_mass_send_views.xml',
+        'views/wa_mass_send_views.xml',
         'views/ir_actions_server_views.xml',
         'wizard/mail_compose_message_wizard.xml',
         'wizard/account_move_send_wizard.xml',
+        'data/wa_api_event_data.xml',
     ],
     'assets': {
         'web.assets_backend': [
-            #'whatsapp_conn/static/src/js/whatsapp_template_html_widget.js',
-            'wa_conn/static/src/js/whatsapp_html_widget.js',
         ],
     },
 }

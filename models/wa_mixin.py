@@ -21,7 +21,7 @@ class WAMixin(models.AbstractModel):
         """
         whatsapp_account = self.env['wa.account'].browse(whatsapp_account_id)
         if not whatsapp_account:
-            raise ValueError("Invalid WhatsApp account specified.")
+            raise ValueError(_("Invalid WhatsApp account specified."))
 
         # Convert HTML message to plain text if necessary
         if message and ('<' in message and '>' in message):
@@ -80,13 +80,13 @@ class WAMixin(models.AbstractModel):
             else:
                 whatsapp_icon = '<i class="fa fa-whatsapp" style="color:red;"></i>'
                 self.env['mail.message'].create({
-                    'body': f'{whatsapp_icon} {response.text}',
+                    'body': f'{whatsapp_icon} {_(response.text)}',
                     'model': res_model,
                     'res_id': res_id,
                 })
         except Exception as e:
             self.env['mail.message'].create({
-                'body': f'Error while sending WhatsApp message: {str(e)}',
+                'body': _(f'Error while sending WhatsApp message: {str(e)}'),
                 'model': res_model,
                 'res_id': res_id,
             })

@@ -5,3 +5,5 @@ access_wa_compose_user,access.wa.compose.user,model_wa_compose,base.group_user,1
 access_wa_compose_manager,access.wa.compose.manager,model_wa_compose,base.group_system,1,1,1,1
 access_wa_template,access_wa_template,model_wa_template,base.group_user,1,1,1,1
 access_wa_mass_send,access_wa_mass_send,model_wa_mass_send,base.group_user,1,1,1,1
+access_wa_api_event_user,access.wa.api.event.user,model_wa_api_event,base.group_user,1,1,1,1
+access_wa_api_event_manager,access.wa.api.event.manager,model_wa_api_event,base.group_system,1,1,1,1

@@ -1,14 +1,16 @@
 from odoo import http
-from odoo.http import request
+from odoo.http import request, Response
 
 
 class BitconnWebhookController(http.Controller):
-    @http.route('/bitconn/webhook', type='json', auth='public', methods=['POST'], csrf=False)
+    url = '/webhook'
+    @http.route(f'{url}', type='json', auth='public', methods=['POST'], csrf=False)
     def receive_webhook(self, **kwargs):
         """Handle incoming webhook requests."""
-
+        h = request.httprequest.headers
         json_data = request.get_json_data()
         print(json_data)
+        print(h)
 
         if not json_data:
             return {'error': 'Invalid JSON data received.'}
@@ -95,4 +97,37 @@ class BitconnWebhookController(http.Controller):
         # Perform your delete logic here
         print(f"Deleting message with ID: {message_id}")
         return {'success': True, 'message': f'Message with ID {message_id} deleted successfully.'}
-    
+
+
+class WAAccountWebhookController(http.Controller):
+    def _process_webhook_event(self, wa_account, json_data):
+        """
+        Processa eventos recebidos no webhook.
+        Se event == 'qrcode.updated', atualiza o campo qr_code do wa_account com data.base64.
+        """
+        if json_data.get('event') == 'qrcode.updated':
+            base64_img = json_data['data']['qrcode']['base64']
+            print(base64_img)
+            if base64_img and wa_account:
+                base64_img = base64_img.split(",")[1]
+                wa_account.qr_code = base64_img
+
+
+    @http.route(['/wa/webhook/<string:webhook_uuid>'], type='json', auth='public', methods=['POST'], csrf=False)
+    def wa_webhook_dynamic(self, webhook_uuid, **kwargs):
+
+        wa_account = request.env['wa.account'].sudo().search([('webhook_uuid', '=', webhook_uuid)], limit=1)
+        if not wa_account or not wa_account.webhook_url or not wa_account.webhook_url.endswith(webhook_uuid):
+            print('404')
+            return Response("Account not found", status=404)
+        
+        received_key = request.httprequest.headers.get('Webhook-Key')
+        if not received_key or received_key != wa_account.webhook_key:
+            print('403')
+            return Response("Invalid webhook key", status=403)
+        
+        json_data = request.get_json_data()
+        self._process_webhook_event(wa_account, json_data)
+
+        return {"status": "ok", "account_id": wa_account.id}
+

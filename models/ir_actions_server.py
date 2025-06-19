@@ -7,7 +7,7 @@ class WAServerAction(models.Model):
 
     name = fields.Char(compute='_compute_name', store=True, readonly=False)
     state = fields.Selection(
-        selection_add=[('send_whatsapp_message', 'Envia WhatsApp')],
+        selection_add=[('send_whatsapp_message', 'Send WhatsApp')],
         ondelete={'send_whatsapp_message': 'cascade'}
     )
     contact_ids = fields.Many2many(
@@ -21,10 +21,15 @@ class WAServerAction(models.Model):
     whatsapp_account_id = fields.Many2one(
         'wa.account',
         string="WhatsApp Account",
-        ondelete='set null',  # <-- Adicionado para evitar erro de restrição ao excluir a conta
+        ondelete='set null',
         help="Select the WhatsApp account to use for sending messages."
     )
-    whatsapp_message = fields.Html(string="WhatsApp Message", help="Message to send via WhatsApp.")  # Changed to Html
+    template_id = fields.Many2one(
+        'wa.template',
+        string="WhatsApp Template",
+        help="Select a WhatsApp template to use for the message."
+    )
+    whatsapp_message = fields.Html(string="WhatsApp Message", help="Message to send via WhatsApp.")
     whatsapp_media = fields.Binary(string="Media File", help="Media file to send via WhatsApp.")
     whatsapp_media_filename = fields.Char(string="Media Filename", help="Filename of the media file.")
     send_to_model_partner = fields.Boolean(
@@ -33,15 +38,24 @@ class WAServerAction(models.Model):
     )
 
     def _run_action_send_whatsapp_message(self, eval_context=None):
-        mixin = self.env['wa.mixin']  # Access the WhatsAppMixin model
+        mixin = self.env['wa.mixin']
         for record in self.env[self.model_id.model].browse(self.env.context.get('active_ids', [])):
+            if self.template_id:
+                message = self.template_id.render_template('message', record)
+                media = self.template_id.whatsapp_media
+                media_filename = self.template_id.whatsapp_media_filename
+            else:
+                message = self.whatsapp_message
+                media = self.whatsapp_media
+                media_filename = self.whatsapp_media_filename
+
             # Send to selected contacts
             for contact in self.contact_ids:
                 mixin.send_whatsapp(
                     mobile=contact.mobile,
-                    message=self.whatsapp_message,
-                    media=self.whatsapp_media,
-                    media_filename=self.whatsapp_media_filename,
+                    message=message,
+                    media=media,
+                    media_filename=media_filename,
                     res_model=self.model_id.model,
                     res_id=record.id,
                     whatsapp_account_id=self.whatsapp_account_id.id
@@ -50,9 +64,9 @@ class WAServerAction(models.Model):
             if self.send_to_model_partner and hasattr(record, 'partner_id') and record.partner_id:
                 mixin.send_whatsapp(
                     mobile=record.partner_id.mobile,
-                    message=self.whatsapp_message,
-                    media=self.whatsapp_media,
-                    media_filename=self.whatsapp_media_filename,
+                    message=message,
+                    media=media,
+                    media_filename=media_filename,
                     res_model=self.model_id.model,
                     res_id=record.id,
                     whatsapp_account_id=self.whatsapp_account_id.id
@@ -75,4 +89,4 @@ class WAServerAction(models.Model):
         super(WAServerAction, self)._compute_name()
         for action in self:
             if action.state == 'send_whatsapp_message':
-                action.name = _('Enviar WhatsApp')
+                action.name = 'Send WhatsApp'

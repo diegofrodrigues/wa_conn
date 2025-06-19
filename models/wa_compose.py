@@ -23,33 +23,27 @@ class WACompose(models.TransientModel):
         domain="[('model', '=', res_model)]",
         help="Select a WhatsApp template to use for the message."
     )
-    message = fields.Html(string="Message", required=True, help="Enter the WhatsApp message.")
+    message = fields.Text(string="Message", required=True, help="Enter the WhatsApp message.")
     whatsapp_media = fields.Binary(string="Media File", help="Attach a media file to send.")
     whatsapp_media_filename = fields.Char(string="Media Filename", help="Filename of the media file.")
     res_model = fields.Char(string="Related Document Model", help="The model of the related document.")
+    model = fields.Char(
+        string="Technical Model Name",
+        compute='_compute_model',
+        readonly=False,
+        store=True,
+        help="Technical field: model name of the related document (auto-computed)."
+    )
     res_id = fields.Integer(string="Related Document ID", help="The ID of the related document.")
 
-    @api.onchange('template_id', 'res_id', 'res_model')
-    def _onchange_template_id(self):
+    @api.depends('res_model')
+    def _compute_model(self):
         """
-        Render the template using the selected record, similar to mail.compose.message.
+        Compute the technical model field from res_model or context.
         """
-        if self.template_id and self.res_model and self.res_id:
-            record = self.env[self.res_model].browse(self.res_id)
-            try:
-                values = self.template_id.generate_whatsapp_values(record)
-                self.message = values['message']
-                self.whatsapp_media = values['whatsapp_media']
-                self.whatsapp_media_filename = values['whatsapp_media_filename']
-            except Exception:
-                self.message = self.template_id.message
-                self.whatsapp_media = self.template_id.whatsapp_media
-                self.whatsapp_media_filename = self.template_id.whatsapp_media_filename
-        elif self.template_id:
-            # If no record, just copy the template message as is
-            self.message = self.template_id.message
-            self.whatsapp_media = self.template_id.whatsapp_media
-            self.whatsapp_media_filename = self.template_id.whatsapp_media_filename
+        for wizard in self:
+            wizard.model = wizard.res_model or self.env.context.get('default_res_model')
+
 
     @api.model
     def default_get(self, fields):
@@ -61,10 +55,8 @@ class WACompose(models.TransientModel):
         if default_account:
             res['whatsapp_account_id'] = default_account.id
 
-        # Set default partner if context provides it
         partner_id = self.env.context.get('default_partner_id')
         if not partner_id:
-            # Try to get from res_model/res_id if possible
             res_model = self.env.context.get('default_res_model')
             res_id = self.env.context.get('default_res_id')
             if res_model and res_id:
@@ -74,6 +66,38 @@ class WACompose(models.TransientModel):
         if partner_id:
             res['partner_ids'] = [(6, 0, [partner_id])]
         return res
+
+    @api.onchange('template_id', 'res_id', 'res_model')
+    def _onchange_template_id(self):
+        """
+        Render the template using the selected record and fill the message field.
+        """
+        if self.template_id:
+            record = None
+            if self.res_model and self.res_id:
+                record = self.env[self.res_model].browse(self.res_id)
+                if not record or not record.exists():
+                    record = None
+            if record:
+                try:
+                    message = self.template_id.render_template('message', record)
+                    if not isinstance(message, str):
+                        message = str(message) if message is not None else ''
+                    self.message = message or ''
+                    self.whatsapp_media = self.template_id.whatsapp_media
+                    self.whatsapp_media_filename = self.template_id.whatsapp_media_filename
+                except Exception:
+                    self.message = 'error'
+                    self.whatsapp_media = self.template_id.whatsapp_media
+                    self.whatsapp_media_filename = self.template_id.whatsapp_media_filename
+            else:
+                self.message = self.template_id.message or ''
+                self.whatsapp_media = self.template_id.whatsapp_media
+                self.whatsapp_media_filename = self.template_id.whatsapp_media_filename
+        else:
+            self.message = False
+            self.whatsapp_media = False
+            self.whatsapp_media_filename = False
 
     def send_message(self):
         """

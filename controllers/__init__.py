@@ -1,1 +1,1 @@
-from . import receive
+from . import main

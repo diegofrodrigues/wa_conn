@@ -7,12 +7,13 @@
             <field name="arch" type="xml">
                 <!-- Add the new action type to the dropdown -->
                 <xpath expr="//field[@name='state']" position="inside">
-                    <field name="state" string="Enviar WhatsApp"/>
+                    <field name="state" string="Send WhatsApp"/>
                 </xpath>
                 <!-- Add a conditional section for send_whatsapp_message -->
                 <xpath expr="//sheet" position="inside">
                     <group>
-                        <field name="whatsapp_account_id" placeholder="Select WhatsApp account" invisible="state != 'send_whatsapp_message'" required="1"/>
+                        <field name="whatsapp_account_id" placeholder="Select WhatsApp account" invisible="state != 'send_whatsapp_message'" required="1" string="WhatsApp Account"/>
+                        <field name="template_id" invisible="state != 'send_whatsapp_message'" string="WhatsApp Template"/>
                         <field 
                             name="contact_ids" 
                             widget="many2many_tags" 
@@ -22,19 +23,20 @@
                         <field 
                             name="send_to_model_partner" 
                             invisible="state != 'send_whatsapp_message'"
+                            string="Model Contact"
                             />
                         <field 
                             name="whatsapp_message" 
-                            widget="html" 
+                            widget="text" 
                             nolabel="1" 
                             placeholder="Type your WhatsApp message here..."
-                            invisible="state != 'send_whatsapp_message'"
+                            invisible="state != 'send_whatsapp_message' or template_id != False"
                             />
                         <field 
                             name="whatsapp_media" 
                             widget="binary" 
                             filename="whatsapp_media_filename"
-                            invisible="state != 'send_whatsapp_message'"
+                            invisible="state != 'send_whatsapp_message' or template_id != False"
                             />
                         <field 
                             name="whatsapp_media_filename" 

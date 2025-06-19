@@ -6,11 +6,12 @@
             <field name="arch" type="xml">
                 <form string="Send WhatsApp Message">
                     <group>
+                        <field name="model" invisible="1"/>
                         <field name="whatsapp_account_id" required="1"/>
                         <field name="partner_ids" widget="many2many_tags" required="1"/>
                         <field name="template_id"/>
                         <field name="res_id" invisible="1"/>
-                        <field name="message" widget="html" required="1"/>
+                        <field name="message" widget="text" required="1"/>
                         <field name="whatsapp_media" widget="binary" filename="whatsapp_media_filename"/>
                         <field name="whatsapp_media_filename" invisible="1"/>
                     </group>
@@ -27,7 +28,7 @@
             <field name="name">Send WhatsApp</field>
             <field name="res_model">wa.compose</field>
             <field name="view_mode">form</field>
-            <field name="view_id" ref="view_whatsapp_compose_form"/> <!-- Pass the view_id -->
+            <field name="view_id" ref="view_whatsapp_compose_form"/>
             <field name="target">new</field>
             <field name="context">
                 {
