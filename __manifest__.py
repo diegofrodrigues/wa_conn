@@ -25,13 +25,14 @@
         'views/wa_account_views.xml',
         'views/wa_compose_views.xml',
         'views/wa_mass_send_views.xml',
-        'views/ir_actions_server_views.xml',
-        'wizard/mail_compose_message_wizard.xml',
-        'wizard/account_move_send_wizard.xml',
+        'views/wa_ir_actions_server_views.xml',
+        'wizard/wa_mail_compose_message_wizard.xml',
+        'wizard/wa_account_move_send_wizard.xml',
         'data/wa_api_event_data.xml',
     ],
     'assets': {
         'web.assets_backend': [
         ],
     },
+    "uninstall_hook": "uninstall_hook",
 }

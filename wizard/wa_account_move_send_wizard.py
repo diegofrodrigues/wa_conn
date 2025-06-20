@@ -1,0 +1,88 @@
+from odoo import _, models, fields, api
+from odoo.exceptions import UserError
+from odoo.tools import html2plaintext
+import json
+
+
+class AccountMoveSendWizard(models.TransientModel):
+    _inherit = 'account.move.send.wizard'
+
+    send_whatsapp = fields.Boolean()
+    whatsapp_account_id = fields.Many2one(
+        'wa.account',
+        string="WhatsApp Account",
+        required=False,
+        help="Select the WhatsApp account to use for sending the message."
+    )
+
+    @api.model
+    def default_get(self, fields):
+        """
+        Set the default WhatsApp account based on the current company.
+        """
+        res = super(AccountMoveSendWizard, self).default_get(fields)
+        default_account = self.env['wa.account'].search([('company_id', '=', self.env.company.id)], limit=1)
+        if default_account:
+            res['whatsapp_account_id'] = default_account.id
+        return res
+
+    def action_send_and_print(self):
+        """
+        Override the send mail action to send WhatsApp messages using WhatsAppMixin.
+        """
+        if self.send_whatsapp:
+            # Validate WhatsApp account
+            if not self.whatsapp_account_id:
+                raise UserError(_("Please select a valid WhatsApp account."))
+
+            # Fetch the partner's mobile number
+            if not self.mail_partner_ids:
+                raise UserError(_("No partner is associated with this message."))
+            partner = self.mail_partner_ids[0]  # Use the first partner in the list
+            if not partner.mobile:
+                raise UserError(_("The partner does not have a mobile number."))
+
+            recipient_number = partner.mobile  # Use the partner's mobile number
+
+            # Convert the `mail_body` field (HTML) to plain text
+            message_content = html2plaintext(self.mail_body)
+
+            if not message_content:
+                raise UserError(_("Message content is empty. Please provide a message."))
+
+            # Use WhatsAppMixin to send the message
+            mixin = self.env['wa.mixin']
+            if self.mail_attachments_widget:
+                # Filter valid attachment IDs
+                attachment_ids = [
+                    attachment['id'] for attachment in self.mail_attachments_widget
+                    if isinstance(attachment['id'], int)
+                ]
+
+                if not attachment_ids:
+                    raise UserError(_("No valid attachments found to send."))
+
+                # Fetch the attachment records
+                attachments = self.env['ir.attachment'].browse(attachment_ids)
+
+                for attachment in attachments:
+                    mixin.send_whatsapp(
+                        mobile=recipient_number,
+                        message=message_content,
+                        media=attachment.datas,
+                        media_filename=attachment.name,
+                        res_model='account.move',
+                        res_id=self.move_id.id,
+                        whatsapp_account_id=self.whatsapp_account_id.id
+                    )
+            else:
+                mixin.send_whatsapp(
+                    mobile=recipient_number,
+                    message=message_content,
+                    res_model='account.move',
+                    res_id=self.move_id.id,
+                    whatsapp_account_id=self.whatsapp_account_id.id
+                )
+
+        # Call the parent method to handle email sending and printing
+        return super(AccountMoveSendWizard, self).action_send_and_print()

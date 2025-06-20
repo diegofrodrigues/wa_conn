@@ -74,6 +74,6 @@ Se este módulo foi útil para você, considere fazer uma doação para apoiar o
 
 Ou utilize o QR Code abaixo ou disponível na tela do módulo:
 
-<img src="static/description/qr_code_donate.png" alt="Donate QR Code" width="150" height="150"/>
+<img src="static/description/qr_code_donate.png" alt="QR Code para Doação" width="150" height="150"/>
 
 ---

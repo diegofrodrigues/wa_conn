@@ -21,7 +21,8 @@ class WAMassSend(models.Model):
         string="Recipients",
         required=True,
         help="Recipients to send WhatsApp messages to.",
-        tracking=True
+        tracking=True,
+        ondelete='cascade'
     )
     template_id = fields.Many2one(
         'wa.template',

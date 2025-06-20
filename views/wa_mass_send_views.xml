@@ -1,67 +1,69 @@
 <odoo>
-    <record id="view_wa_mass_send_form" model="ir.ui.view">
-        <field name="name">wa.mass.send.form</field>
-        <field name="model">wa.mass.send</field>
-        <field name="arch" type="xml">
-            <form string="Mass WhatsApp Sender">
-                <sheet>
-                    <group>
-                        <field name="name" required="1"/>
-                        <field name="whatsapp_account_id" required="1"/>
-                        <field name="partner_ids" widget="many2many_tags" required="1"/>
-                        <field name="template_id"/>
-                        <field name="message"
-                            widget="text"
-                            invisible="template_id != False"
-                            placeholder="Type your WhatsApp message here (required if no template selected)."/>
-                    </group>
-                    <notebook>
-                        <page string="Settings">
-                            <group>
+    <data>
+        <record id="view_wa_mass_send_form" model="ir.ui.view">
+            <field name="name">wa.conn.wa.mass.send.form</field>
+            <field name="model">wa.mass.send</field>
+            <field name="arch" type="xml">
+                <form string="Mass WhatsApp Sender">
+                    <sheet>
+                        <group>
+                            <field name="name" required="1"/>
+                            <field name="whatsapp_account_id" required="1"/>
+                            <field name="partner_ids" widget="many2many_tags" required="1"/>
+                            <field name="template_id"/>
+                            <field name="message"
+                                widget="text"
+                                invisible="template_id != False"
+                                placeholder="Type your WhatsApp message here (required if no template selected)."/>
+                        </group>
+                        <notebook>
+                            <page string="Settings">
                                 <group>
-                                    <field name="cron_enabled"  widget="boolean_toggle" invisible="id == 0"/>
-                                    <field name="min_delay"/>
-                                    <field name="max_delay"/>
-                                    <field name="scheduled_datetime"/>
+                                    <group>
+                                        <field name="cron_enabled"  widget="boolean_toggle" invisible="id == 0"/>
+                                        <field name="min_delay"/>
+                                        <field name="max_delay"/>
+                                        <field name="scheduled_datetime"/>
+                                    </group>
+                                    <group>
+                                        <field name="cron_interval_number"/>
+                                        <field name="cron_interval_type"/>
+                                    </group>
                                 </group>
-                                <group>
-                                    <field name="cron_interval_number"/>
-                                    <field name="cron_interval_type"/>
-                                </group>
-                            </group>
-                        </page>
-                    </notebook>
-                </sheet>
-                <chatter/>
-            </form>
-        </field>
-    </record>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
 
-    <record id="view_wa_mass_send_list" model="ir.ui.view">
-        <field name="name">wa.mass.send.list</field>
-        <field name="model">wa.mass.send</field>
-        <field name="arch" type="xml">
-            <list string="Mass WhatsApp Sends">
-                <field name="name"/>
-                <field name="whatsapp_account_id"/>
-                <field name="state"/>
-                <field name="last_send_date"/>
-                <field name="error_message"/>
-            </list>
-        </field>
-    </record>
+        <record id="view_wa_mass_send_list" model="ir.ui.view">
+            <field name="name">wa.conn.wa.mass.send.list</field>
+            <field name="model">wa.mass.send</field>
+            <field name="arch" type="xml">
+                <list string="Mass WhatsApp Sends">
+                    <field name="name"/>
+                    <field name="whatsapp_account_id"/>
+                    <field name="state"/>
+                    <field name="last_send_date"/>
+                    <field name="error_message"/>
+                </list>
+            </field>
+        </record>
 
-    <record id="action_wa_mass_send" model="ir.actions.act_window">
-        <field name="name">Mass WhatsApp Sends</field>
-        <field name="res_model">wa.mass.send</field>
-        <field name="view_mode">list,form</field>
-        <field name="view_id" ref="view_wa_mass_send_list"/>
-        <field name="target">current</field>
-    </record>
+        <record id="action_wa_mass_send" model="ir.actions.act_window">
+            <field name="name">Mass WhatsApp Sends</field>
+            <field name="res_model">wa.mass.send</field>
+            <field name="view_mode">list,form</field>
+            <field name="view_id" ref="view_wa_mass_send_list"/>
+            <field name="target">current</field>
+        </record>
 
-    <menuitem id="menu_wa_mass_send"
-              name="Mass Sends"
-              parent="menu_wa_message_root"
-              action="action_wa_mass_send"
-              sequence="60"/>
+        <menuitem id="menu_wa_mass_send"
+                name="Mass Sends"
+                parent="menu_wa_message_root"
+                action="action_wa_mass_send"
+                sequence="60"/>
+    </data>
 </odoo>
