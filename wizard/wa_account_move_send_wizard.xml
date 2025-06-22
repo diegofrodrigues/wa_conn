@@ -5,16 +5,14 @@
             <field name="model">account.move.send.wizard</field>
             <field name="inherit_id" ref="account.account_move_send_wizard_form"/> <!-- Reference the correct parent view -->
             <field name="arch" type="xml">
-                <!-- Add the 'send_whatsapp' field after the 'sending_method_checkboxes' field -->
-                <xpath expr="//field[@name='sending_method_checkboxes']" position="after">
-                    <div>
-                        <label for="send_whatsapp" string="Send WhatsApp" />
-                        <field name="send_whatsapp" class="ml-4"/>
-                    </div>
-                </xpath>
                 <!-- Add the 'whatsapp_account_id' field after the 'send_whatsapp' field -->
-                <xpath expr="//field[@name='send_whatsapp']" position="after">
-                    <field name="whatsapp_account_id" invisible="send_whatsapp != True" required="send_whatsapp != True"/>
+                <xpath expr="//field[@name='sending_method_checkboxes']" position="after">
+                    <group>
+                        <field name="whatsapp_account_id" invisible="'whatsapp' not in sending_methods" />
+                    </group>
+                </xpath>
+                <xpath expr="//footer" position="inside">
+                    <button string="Only WhatsApp" name="action_send_only_whatsapp" type="object" class="btn-success" icon="fa-whatsapp" invisible="'whatsapp' not in sending_methods"/>
                 </xpath>
             </field>
         </record>

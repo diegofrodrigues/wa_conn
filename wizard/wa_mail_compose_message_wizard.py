@@ -27,8 +27,8 @@ class MailComposer(models.TransientModel):
         if default_account:
             res['whatsapp_account_id'] = default_account.id
         return res
-
-    def action_send_mail(self):
+    
+    def action_send_only_whatsapp(self):
         """
         Override the send mail action to send both WhatsApp and email messages if `send_whatsapp` is True.
         """
@@ -81,5 +81,10 @@ class MailComposer(models.TransientModel):
                     whatsapp_account_id=self.whatsapp_account_id.id
                 )
 
+    def action_send_mail(self):
+        """
+        Override the send mail action to send both WhatsApp and email messages if `send_whatsapp` is True.
+        """
+        self.action_send_only_whatsapp()
         # Call the parent method to send the email
         return super().action_send_mail()

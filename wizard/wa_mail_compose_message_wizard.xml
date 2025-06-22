@@ -12,6 +12,9 @@
                 <xpath expr="//form/group" position="inside">
                     <field name="whatsapp_account_id"  invisible="send_whatsapp != True" required="send_whatsapp != True"/>
                 </xpath>
+                <xpath expr="//footer" position="inside">
+                    <button string="Only WhatsApp" name="action_send_only_whatsapp" type="object" class="btn-success" icon="fa-whatsapp"  invisible="send_whatsapp != True"/>
+                </xpath>
             </field>
         </record>
     </data>
