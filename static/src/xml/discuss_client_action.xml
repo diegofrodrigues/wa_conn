@@ -1,0 +1,5 @@
+<templates xml:space="preserve">
+    <t t-name="wa_conn.DiscussClientAction">
+        <Discuss/>
+    </t>
+</templates>

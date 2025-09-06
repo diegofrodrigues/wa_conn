@@ -95,6 +95,7 @@
                                 <field name="api_url" widget="url"/>
                                 <field name="api_key" password="1"/>
                                 <field name="state" readonly="1" widget="badge" decoration-success="state == 'connected'" decoration-warning="state == 'connecting'" decoration-danger="state == 'disconnected'"/>
+                                <field name="provider"/>
                             </group>
                             <group>
                             <div style="text-align:center; margin-top:10px;">
@@ -128,7 +129,10 @@
                                         <field name="base64_webhook" widget="boolean_toggle"/>
                                     </group>
                                     <group>
-                                        <field name="webhook_url" readonly="1" widget="CopyClipboardURL"/>
+                                        <div style="text-align:center; margin-top:10px;">
+                                            <field name="webhook_url" readonly="1" widget="CopyClipboardURL"/>
+                                            <button name="new_webhook_url" type="object" string="New URL" class="btn btn-link" icon="fa-refresh"/>
+                                        </div>
                                     </group>
                                     <group>
                                         <field name="api_events_ids" string="Webhook Events" widget="many2many_tags" options="{'no_create': True, 'no_create_edit': True}"/>
@@ -174,7 +178,7 @@
                                     <span>Base URL: <field name="api_url"/></span>
                                 </div>
                                 <div class="o_kanban_secondary">
-                                    <span>Status: <field name="state"/></span>
+                                    <span><field name="state" widget="badge" decoration-success="state == 'connected'" decoration-warning="state == 'connecting'" decoration-danger="state == 'disconnected'"/></span>
                                 </div>
                                 <div class="o_kanban_secondary">
                                     <span>Company: <field name="company_id"/></span>

@@ -44,7 +44,6 @@ class WACompose(models.TransientModel):
         for wizard in self:
             wizard.model = wizard.res_model or self.env.context.get('default_res_model')
 
-
     @api.model
     def default_get(self, fields):
         """

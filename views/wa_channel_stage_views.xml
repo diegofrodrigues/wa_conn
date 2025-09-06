@@ -1,0 +1,28 @@
+<odoo>
+    <data>
+        <record id="view_wa_channel_stage_list" model="ir.ui.view">
+            <field name="name">wa.channel.stage.list</field>
+            <field name="model">wa.channel.stage</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="name"/>
+                    <field name="sequence"/>
+                    <field name="fold"/>
+                </list>
+            </field>
+        </record>
+        <record id="view_wa_channel_stage_form" model="ir.ui.view">
+            <field name="name">wa.channel.stage.form</field>
+            <field name="model">wa.channel.stage</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group>
+                        <field name="name"/>
+                        <field name="sequence"/>
+                        <field name="fold"/>
+                    </group>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -13,7 +13,12 @@
                 <xpath expr="//sheet" position="inside">
                     <group>
                         <field name="whatsapp_account_id" placeholder="Select WhatsApp account" invisible="state != 'send_whatsapp_message'" required="1" string="WhatsApp Account"/>
-                        <field name="template_id" invisible="state != 'send_whatsapp_message'" string="WhatsApp Template"/>
+               <field name="template_id"
+                   invisible="state != 'send_whatsapp_message'"
+                   string="WhatsApp Template"
+                   domain="[('model_id', '=', model_id)]"
+                   context="{'default_model_id': model_id}"
+               />
                         <field 
                             name="contact_ids" 
                             widget="many2many_tags" 

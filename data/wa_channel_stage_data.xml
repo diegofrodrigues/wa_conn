@@ -1,0 +1,9 @@
+<odoo>
+    <data noupdate="1">
+        <record id="wa_channel_stage_new" model="wa.channel.stage">
+            <field name="name">New</field>
+            <field name="sequence">0</field>
+            <field name="fold">0</field>
+        </record>
+    </data>
+</odoo>

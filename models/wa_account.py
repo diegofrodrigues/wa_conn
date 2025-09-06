@@ -1,7 +1,4 @@
 from odoo import _, api, fields, models
-import requests
-import base64
-import time
 import uuid
 import secrets
 
@@ -21,8 +18,14 @@ class WAAccount(models.Model):
     name = fields.Char(string="Instance Name", required=True, tracking=True)
     api_url = fields.Char(string="API URL", required=True, tracking=True)
     api_key = fields.Char(string="API Key", required=True)
+
     state = fields.Selection(
-        [('disconnected', 'Disconnected'), ('connected', 'Connected'), ('connecting', 'Connecting'), ('not_created', 'Not Created')],
+        [
+            ('not_created', 'Not Created'),
+            ('disconnected', 'Disconnected'),
+            ('connecting', 'Connecting'),
+            ('connected', 'Connected'),
+        ],
         string="State",
         default='not_created',
         readonly=True,
@@ -30,6 +33,7 @@ class WAAccount(models.Model):
         compute='_compute_state',
         store=True,
     )
+
     company_id = fields.Many2one(
         'res.company',
         string="Company",
@@ -37,6 +41,7 @@ class WAAccount(models.Model):
         default=lambda self: self.env.company,
         help="The company this WhatsApp account belongs to."
     )
+
     qr_code = fields.Image(
         string="QR Code",
         help="QR Code for WhatsApp connection.",
@@ -76,109 +81,153 @@ class WAAccount(models.Model):
     enable_webhook = fields.Boolean(string="Enable Webhook", default=False)
     base64_webhook = fields.Boolean(string="Base64 Webhook", default=False)
 
-    def get_url_text_message(self):
-        self.ensure_one()
-        return f"{self.api_url}/message/sendText/{self.name}"
-    
-    def get_url_media_message(self):
-        self.ensure_one()
-        return f"{self.api_url}/message/sendMedia/{self.name}"
-    
-    def get_headers(self):
-        headers = {
-            "Content-Type": "application/json",
-            "apikey": self.api_key,
-        }
-        return headers
+    # Provider strategy
+    provider = fields.Selection(
+        [('evolution', 'Evolution'),
+         ('unoapi', 'UnoAPI'),],  # adicione outros providers aqui
+        required=True,
+        default='evolution',
+        tracking=True,
+    )
 
-    def connect(self):
-        """
-        Connect to the WhatsApp instance and retrieve the QR code if necessary.
-        """
+    def _provider_model_name(self):
         self.ensure_one()
-        self.check_status()
-        if self.state == 'disconnected':
-            pass
-        elif self.state == 'connected':
-            return
-        
-        url = f"{self.api_url}/instance/connect/{self.name}"
-        try:
-            response = requests.get(url, headers=self.get_headers())
-            if response.status_code == 200:
-                qr_code_data = response.json().get('base64')
-                if qr_code_data:
-                    self.qr_code = qr_code_data.split(",")[1]
-                    self.state = 'connecting'  
-            else:
-                self.qr_code = False
-                raise Exception(_(f"Failed to connect: {response.text}"))
-        except Exception as e:
-            self.qr_code = False
-            raise Exception(_(f"Error while connecting: {str(e)}"))
-        
-    def restart(self):
+        mapping = {
+            'evolution': 'wa.provider.evolution',
+            'unoapi': 'wa.provider.unoapi',
+        }
+        model = mapping.get(self.provider)
+        if not model:
+            raise ValueError(f'Unsupported provider: {self.provider}')
+        return model
+
+    def _provider(self):
+        return self.env[self._provider_model_name()]
+
+    # ------------- Delegação para o provider -------------
+    # Entrada (webhook)
+    def normalize_inbound(self, raw, request=None):
         self.ensure_one()
-        self.check_status()
-        url = f"{self.api_url}/instance/restart/{self.name}"
-        try:
-            response = requests.put(url, headers=self.get_headers())
-            if response.status_code == 200:
-                print(response.text)
-            elif response.status_code == 404:
-                print(response.text)
-            else:
-                raise Exception(_(f"Failed to restart: {response.text}"))
-        except Exception as e:
-            self.qr_code = False
-            raise Exception(_(f"Error: {str(e)}"))
-        
-    def disconnect(self):
-        """
-        Disconnect from the WhatsApp instance.
-        """
+        return self._provider().normalize_inbound(self, raw, request=request)
+
+    # Saída
+    def wa_send_text(self, mobile, message):
         self.ensure_one()
-        self.check_status()
-        url = f"{self.api_url}/instance/logout/{self.name}"
-        try:
-            response = requests.delete(url, headers=self.get_headers())
-            if response.status_code == 200:
+        return self._provider().send_text(self, mobile, message)
+
+    def wa_send_media(self, mobile, *, caption='', b64=None, mime=None, filename=None):
+        self.ensure_one()
+        return self._provider().send_media(self, mobile, caption=caption, b64=b64, mime=mime, filename=filename)
+
+    # ------------- Entrada completa (webhook -> ORM) -------------
+    def inbound_handle(self, raw, request=None):
+        """Delegação completa para o provider."""
+        self.ensure_one()
+        return self._provider().inbound_handle(self, raw, request=request)
+
+    # Ciclo de vida/estado
+    def create_instance(self):
+        self.ensure_one()
+        res = self._provider().create_instance(self)
+        if res.get('ok'):
+            self.instance_created = True
+            if self.state == 'not_created':
                 self.state = 'disconnected'
-                print(response.text)
-            elif response.status_code == 404:
-                print(response.text)
-            else:
-                raise Exception(_(f"Failed to disconnect: {response.text}"))
-        except Exception as e:
+        else:
+            raise Exception(_(f"Failed to create instance: {res.get('text') or res}"))
+        return res
+
+    def delete_instance(self):
+        self.ensure_one()
+        res = self._provider().delete_instance(self)
+        if res.get('ok'):
+            self.instance_created = False
             self.qr_code = False
-            raise Exception(_(f"Error: {str(e)}"))
+            self.state = 'not_created'
+        else:
+            raise Exception(_(f"Failed to delete: {res.get('text') or res}"))
+        return res
 
     def check_status(self):
         """
-        Check the status of the WhatsApp instance.
+        Consulta o estado no provider e mapeia para o campo state.
         """
         self.ensure_one()
-        url = f"{self.api_url}/instance/connectionState/{self.name}"
-        try:
-            response = requests.get(url, headers=self.get_headers())
-            if response.status_code == 200:
-                instance_state = response.json().get('instance', {}).get('state')
-                if instance_state == 'open':
-                    self.state = 'connected'  
-                elif instance_state == 'connecting': 
-                    self.state = 'connecting' 
-                else: 
-                    self.state = 'disconnected'  
-            else:
-                raise Exception(_(f"Failed to check status: {response.text}"))
-        except Exception as e:
-            raise Exception(_(f"Error while checking status: {str(e)}"))
+        res = self._provider().check_status(self)
+        if res.get('ok'):
+            state = (res.get('state') or '').lower()
+            if state == 'open':
+                self.state = 'connected'
+            elif state == 'connecting':
+                self.state = 'connecting'
+            elif state in ('closed', 'logout', 'disconnected'):
+                self.state = 'disconnected'
+            # outros estados: manter como está
+        return res
+
+    def connect(self):
+        """
+        Solicita conexão e retorna QR code (se aplicável).
+        """
+        self.ensure_one()
+        # tenta atualizar estado antes
+        self.check_status()
+        if self.state == 'connected':
+            return {'ok': True, 'state': 'connected'}
+
+        res = self._provider().connect(self)
+        if res.get('ok') and res.get('qrcode_b64'):
+            b64 = res['qrcode_b64']
+            if isinstance(b64, str) and ',' in b64:
+                b64 = b64.split(',', 1)[1]
+            self.qr_code = b64
+            self.state = 'connecting'
+        elif not res.get('ok'):
+            self.qr_code = False
+            raise Exception(_(f"Failed to connect: {res.get('text') or res}"))
+        return res
+
+    def restart(self):
+        self.ensure_one()
+        res = self._provider().restart(self)
+        if not res.get('ok'):
+            raise Exception(_(f"Failed to restart: {res.get('text') or res}"))
+        return res
+
+    def disconnect(self):
+        """
+        Desconecta a instância.
+        """
+        self.ensure_one()
+        res = self._provider().disconnect(self)
+        if res.get('ok'):
+            self.state = 'disconnected'
+            self.qr_code = False
+        else:
+            raise Exception(_(f"Failed to disconnect: {res.get('text') or res}"))
+        return res
+
+    def refresh_qrcode(self):
+        """
+        Força a atualização do QR code (se suportado pelo provider).
+        """
+        return self.connect()
+
+    def new_webhook_url(self):
+        """
+        Gera novas credenciais/URL do webhook.
+        """
+        new_key = secrets.token_urlsafe(32)
+        new_uuid = str(uuid.uuid4())
+        api_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url', 'http://localhost:8069')
+        self.webhook_key = new_key
+        self.webhook_uuid = new_uuid
+        self.webhook_url = f"{api_url}/wa/webhook/{new_uuid}"
 
     @api.model_create_multi
     def create(self, vals_list):
         """
-        Override the create method to add custom logic when creating WhatsApp accounts.
-        Supports batch creation.
+        Override do create para inicializar campos e garantir unicidade por empresa.
         """
         for vals in vals_list:
             if 'name' in vals and 'company_id' in vals:
@@ -206,76 +255,6 @@ class WAAccount(models.Model):
 
         return accounts
 
-    def create_instance(self):
-        self.ensure_one()
-        # event_names = [event.name for event in self.api_events_ids]
-        # if not event_names:
-        #     event_names = ['APPLICATION_STARTUP','QRCODE_UPDATED']
-        data = {
-            "instanceName": self.name,
-            "integration": "WHATSAPP-BAILEYS",
-            "rejectCall": self.reject_call,
-            "msgCall": self.call_rejected_message or '',
-            "groupsIgnore": self.ignore_group,
-            "alwaysOnline": self.always_online,
-            "readMessages": self.view_message,
-            "readStatus": self.view_status,
-            "syncFullHistory": self.sync_history,
-        }
-        event_names = [event.name for event in self.api_events_ids]
-        if not event_names:
-            event_names = ['APPLICATION_STARTUP', 'QRCODE_UPDATED']
-        if self.enable_webhook:
-            data["webhook"] = {
-                "url": self.webhook_url,
-                "byEvents": False,
-                "base64": self.bse64_webhook,
-                "headers": {
-                    "webhook_key": self.webhook_key
-                },
-                "events": event_names,
-            }
-    
-        url = f"{self.api_url}/instance/create"
-        try:
-            response = requests.post(url, json=data, headers=self.get_headers())
-            if response.status_code == 201:
-                self.instance_created = True
-                return
-            else:
-                raise Exception(_(f"Failed to create instance: {response.text}"))
-        except Exception as e:
-            raise Exception(_(f"Error while creating instance: {str(e)}"))
-        
-    def delete_instance(self):
-        """
-        Delete the WhatsApp instance and clear the QR code.
-        """
-        self.ensure_one()
-        self.check_status()
-        url = f"{self.api_url}/instance/delete/{self.name}"
-        try:
-            response = requests.delete(url, headers=self.get_headers())
-            if response.status_code == 200:
-                self.instance_created = False
-                self.qr_code = False
-                print(response.text)
-            elif response.status_code == 404:
-                print(response.text)
-            else:
-                raise Exception(_(f"Failed to delete: {response.text}"))
-        except Exception as e:
-            self.qr_code = False
-            raise Exception(_(f"Error: {str(e)}"))
-        
-    def refresh_qrcode(self):
-        self.connect()
-        # TODO: add auto reload on receive webhook QRCODE_UPDATED event
-        # return { 
-        #     'type': 'ir.actions.client',
-        #     'tag': 'reload',
-        # }
-
     @api.depends('instance_created', 'state')
     def _compute_state(self):
         for rec in self:
@@ -283,4 +262,3 @@ class WAAccount(models.Model):
                 rec.state = 'not_created'
             elif rec.state == 'not_created':
                 rec.state = 'disconnected'
-

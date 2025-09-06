@@ -1,5 +1,6 @@
 from odoo import _, models
 import requests
+import base64
 from odoo.tools import html2plaintext
 from ..tools.util import get_media_type, get_mime_type
 
@@ -90,3 +91,117 @@ class WAMixin(models.AbstractModel):
                 'model': res_model,
                 'res_id': res_id,
             })
+
+
+    def send_wa(self, mobile, message, media=None, media_filename=None, res_model=None, res_id=None, whatsapp_account_id=None):
+
+        whatsapp_account = self.env['wa.account'].browse(whatsapp_account_id)
+        if not whatsapp_account:
+            raise ValueError(_("Invalid WhatsApp account specified."))
+
+        # Convert HTML message to plain text if necessary
+        if message and ('<' in message and '>' in message):
+            message = html2plaintext(message)
+
+        headers = {
+            'Content-Type': 'application/json',
+            'apikey': whatsapp_account.api_key,
+        }
+
+        if media:
+            url = whatsapp_account.get_url_media_message()
+            media_decoded = media.decode()
+            media_type = get_media_type(media_filename)
+            mime_type = get_mime_type(media_filename)
+            payload = {
+                'number': f'+{mobile}',
+                'caption': message,
+                'mediatype': media_type,
+                'mimetype': mime_type,
+                'media': media_decoded,
+                'fileName': media_filename,
+            }
+        else:
+            url = whatsapp_account.get_url_text_message()
+            payload = {
+                'number': f'+{mobile}',
+                'text': message,
+            }
+
+        try:
+            response = requests.post(url, json=payload, headers=headers)
+            # if response.status_code == 201:
+            #     whatsapp_icon = '<i class="fa fa-whatsapp" style="color:green;"></i>'
+            #     message_body = f'{whatsapp_icon} {message}'
+            #     # if media:
+            #     #     # Save the media file as an attachment
+            #     #     attachment = self.env['ir.attachment'].create({
+            #     #         'name': media_filename,
+            #     #         'type': 'binary',
+            #     #         'datas': media,
+            #     #         'res_model': res_model,
+            #     #         'res_id': res_id,
+            #     #         'mimetype': mime_type,
+            #     #     })
+            #     #     # Add a preview for the file
+            #     #     if mime_type.startswith('image/'):
+            #     #         message_body += f'<br/><img src="/web/content/{attachment.id}" alt="{media_filename}" style="max-width: 300px; max-height: 300px;"/>'
+            #     #     else:
+            #     #         message_body += f'<br/><a href="/web/content/{attachment.id}" target="_blank">{media_filename}</a>'
+            #     # self.env['mail.message'].create({
+            #     #     'body': message_body,
+            #     #     'model': res_model,
+            #     #     'res_id': res_id,
+            #     # })
+            # else:
+            #     whatsapp_icon = '<i class="fa fa-whatsapp" style="color:red;"></i>'
+            #     # self.env['mail.message'].create({
+            #     #     'body': f'{whatsapp_icon} {_(response.text)}',
+            #     #     'model': res_model,
+            #     #     'res_id': res_id,
+            #     # })
+            return response
+        except Exception as e:
+            msg = self.env['mail.message'].create({
+                'body': _(f'Error while sending WhatsApp message: {str(e)}'),
+                'model': res_model,
+                'res_id': res_id,
+            })
+
+    def get_profile_image(self, remote_jid=None, whatsapp_account_id=None):
+
+        whatsapp_account = self.env['wa.account'].browse(whatsapp_account_id)
+        if not whatsapp_account:
+            raise ValueError(_("Invalid WhatsApp account specified."))
+        
+        headers = {
+            'Content-Type': 'application/json',
+            'apikey': whatsapp_account.api_key,
+        }
+
+        url = whatsapp_account.get_url_profile_picture()
+        payload = {
+            'number': f'{remote_jid}',
+        }
+
+        try:
+            response = requests.post(url, json=payload, headers=headers)
+            profile_picture_url = None
+            response_data = response.json()
+            
+            if 'profilePictureUrl' in response_data:
+                profile_picture_url = response_data['profilePictureUrl']
+
+            avatar_b64 = False
+            if profile_picture_url:
+                try:
+                    response = requests.get(profile_picture_url)
+                    if response.status_code == 200:
+                        avatar_b64 = base64.b64encode(response.content)
+                    return avatar_b64
+                
+                except Exception as e:
+                    avatar_b64 = False
+            return response
+        except Exception as e:
+             print(f'{str(e)}')

@@ -1,0 +1,10 @@
+<odoo>
+	<data>
+		<!-- Client action that mounts the Discuss OWL component. Use it with context/params channel_id -->
+		<record id="action_open_discuss" model="ir.actions.client">
+			<field name="name">Open Discuss (WA)</field>
+			<field name="tag">wa_conn.discuss_client_action</field>
+			<field name="context">{}</field>
+		</record>
+	</data>
+</odoo>

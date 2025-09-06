@@ -68,6 +68,4 @@
         <field name="domain">[("message_type", "=", "whatsapp")]</field>
     </record>
 
-    <!-- <menuitem id="menu_mail_message_root" name="Mail Messages" sequence="10" parent="base.menu_custom"/> -->
-    <!-- <menuitem id="menu_mail_message" name="Messages" parent="menu_whatsapp_account_root" action="action_mail_message" sequence="20"/> -->
 </odoo>
